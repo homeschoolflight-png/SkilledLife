@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task 3: Know Your Own Info — Life Skills Practice</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="back-link" href="index.html">&larr; Personal Info &amp; Forms</a>
+  <p class="section-badge">Task 3</p>
+  <h1>Know Your Own Info</h1>
+</header>
+<main>
+  <div class="task-card">
+    <p style="color: var(--text-dim);">Fill this in from memory — don't look anything up. This isn't graded on the site; it gets sent to your parent to check.</p>
+
+    <form id="recall-form" onsubmit="return false;">
+      <fieldset>
+        <legend>About You</legend>
+        <div class="field-row"><label>Full Name</label><input type="text" id="f-name" /></div>
+        <div class="field-row"><label>Address</label><input type="text" id="f-address" /></div>
+        <div class="two-col">
+          <div class="field-row"><label>Phone</label><input type="tel" id="f-phone" /></div>
+          <div class="field-row"><label>Email</label><input type="email" id="f-email" /></div>
+        </div>
+        <div class="two-col">
+          <div class="field-row"><label>Birthdate</label><input type="text" id="f-dob" placeholder="MM/DD/YYYY" /></div>
+          <div class="field-row">
+            <label>Gender</label>
+            <select id="f-gender">
+              <option value="">Choose one</option>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row"><label>Place of Birth</label><input type="text" id="f-pob" /></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Parent 1 (Mom)</legend>
+        <div class="field-row"><label>Name</label><input type="text" id="f-p1-name" /></div>
+        <div class="two-col">
+          <div class="field-row"><label>Phone</label><input type="tel" id="f-p1-phone" /></div>
+          <div class="field-row"><label>Email</label><input type="email" id="f-p1-email" /></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Parent 2 (Dad)</legend>
+        <div class="field-row"><label>Name</label><input type="text" id="f-p2-name" /></div>
+        <div class="two-col">
+          <div class="field-row"><label>Phone</label><input type="tel" id="f-p2-phone" /></div>
+          <div class="field-row"><label>Email</label><input type="email" id="f-p2-email" /></div>
+        </div>
+      </fieldset>
+    </form>
+
+    <div id="feedback-root"></div>
+
+    <div class="actions-row">
+      <button class="primary-btn" onclick="handleSend()">Send to Parent</button>
+      <span class="send-reminder">Don't forget to send this!</span>
+    </div>
+    <div id="send-status" class="status-msg"></div>
+  </div>
+</main>
+
+<script src="../app.js"></script>
+<script>
+  function handleSend() {
+    const ids = ["f-name","f-address","f-phone","f-email","f-dob","f-gender","f-pob",
+                 "f-p1-name","f-p1-phone","f-p1-email","f-p2-name","f-p2-phone","f-p2-email"];
+    const data = {};
+    ids.forEach((id) => { data[id.replace("f-", "")] = document.getElementById(id).value; });
+    sendToParent("Know Your Own Info", data);
+  }
+</script>
+</body>
+</html>

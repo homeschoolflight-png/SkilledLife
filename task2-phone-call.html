@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task 2: Phone Call Practice — Life Skills Practice</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="back-link" href="index.html">&larr; Communication</a>
+  <p class="section-badge">Task 2</p>
+  <h1>Phone Call Practice</h1>
+</header>
+<main>
+  <div class="task-card">
+    <p style="color: var(--text-dim);">Here's why you're calling:</p>
+    <div id="objective-box" class="bio-box"></div>
+
+    <div class="two-col">
+      <div class="field-row"><label>Your name</label><input type="text" id="f-name" /></div>
+      <div class="field-row"><label>Your phone number</label><input type="tel" id="f-phone" /></div>
+    </div>
+    <div class="field-row" id="extra-field-row" style="display:none;">
+      <label id="extra-field-label"></label>
+      <input type="text" id="f-extra" />
+    </div>
+
+    <div class="field-row">
+      <label>Your script — fill in the blanks above, then read this out loud</label>
+      <div id="script-box" class="bio-box"></div>
+    </div>
+
+    <div class="field-row" style="margin-top: 18px;">
+      <label>Take a look before you record:</label>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="chk-1" onchange="updateRecordEnabled()" /><label for="chk-1">Did you fill in your name and phone number?</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="chk-2" onchange="updateRecordEnabled()" /><label for="chk-2">Have you practiced reading it once already?</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="chk-3" onchange="updateRecordEnabled()" /><label for="chk-3">Are you speaking somewhere quiet?</label></div>
+
+    <div class="actions-row">
+      <button id="record-btn" class="primary-btn" disabled onclick="toggleRecording()">Start Recording</button>
+    </div>
+    <div id="record-status" class="status-msg"></div>
+    <audio id="playback" controls style="display:none; margin-top: 12px; width: 100%;"></audio>
+
+    <div id="feedback-root"></div>
+
+    <div class="actions-row">
+      <button id="send-btn" class="primary-btn" disabled onclick="handleSend()">Send to Parent</button>
+      <span class="send-reminder">Don't forget to send this!</span>
+    </div>
+    <div id="send-status" class="status-msg"></div>
+  </div>
+</main>
+
+<script src="../app.js"></script>
+<script>
+  const OBJECTIVES = [
+    {
+      reason: "You need to reschedule an appointment.",
+      extraLabel: "What day would work better for you?",
+      script: (name, phone, extra) =>
+        `Hi, this is ${name || "___"}. I have an appointment and I need to reschedule it. Would ${extra || "___"} work instead? If we get disconnected, my phone number is ${phone || "___"}.`
+    },
+    {
+      reason: "You want to ask what time you should arrive.",
+      extraLabel: "(no extra info needed — leave blank)",
+      script: (name, phone) =>
+        `Hi, this is ${name || "___"}. I have an appointment coming up and I wanted to ask what time I should arrive. My phone number is ${phone || "___"} in case we get disconnected.`
+    },
+    {
+      reason: "You're going to be late.",
+      extraLabel: "About how many minutes late will you be?",
+      script: (name, phone, extra) =>
+        `Hi, this is ${name || "___"}. I'm calling to let you know I'll be about ${extra || "___"} minutes late today. My phone number is ${phone || "___"}.`
+    },
+    {
+      reason: "You want to confirm you're still coming.",
+      extraLabel: "(no extra info needed — leave blank)",
+      script: (name, phone) =>
+        `Hi, this is ${name || "___"}. I'm calling to confirm that I'll be there for my appointment. My phone number is ${phone || "___"}.`
+    },
+    {
+      reason: "You need to cancel because you're not feeling well.",
+      extraLabel: "(no extra info needed — leave blank)",
+      script: (name, phone) =>
+        `Hi, this is ${name || "___"}. I need to cancel my appointment today because I'm not feeling well. My phone number is ${phone || "___"}.`
+    }
+  ];
+
+  const objective = OBJECTIVES[Math.floor(Math.random() * OBJECTIVES.length)];
+  document.getElementById("objective-box").textContent = objective.reason;
+
+  if (!objective.extraLabel.startsWith("(no extra")) {
+    document.getElementById("extra-field-row").style.display = "block";
+    document.getElementById("extra-field-label").textContent = objective.extraLabel;
+  }
+
+  function refreshScript() {
+    const name = document.getElementById("f-name").value;
+    const phone = document.getElementById("f-phone").value;
+    const extra = document.getElementById("f-extra").value;
+    document.getElementById("script-box").textContent = objective.script(name, phone, extra);
+  }
+  document.getElementById("f-name").addEventListener("input", refreshScript);
+  document.getElementById("f-phone").addEventListener("input", refreshScript);
+  document.getElementById("f-extra").addEventListener("input", refreshScript);
+  refreshScript();
+
+  function updateRecordEnabled() {
+    const allChecked = ["chk-1", "chk-2", "chk-3"].every((id) => document.getElementById(id).checked);
+    document.getElementById("record-btn").disabled = !allChecked;
+  }
+
+  let mediaRecorder, chunks = [], recordedBlob = null, stream = null;
+
+  async function toggleRecording() {
+    const btn = document.getElementById("record-btn");
+    const statusEl = document.getElementById("record-status");
+
+    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        statusEl.textContent = "Couldn't access the microphone. Check your device's permission settings.";
+        statusEl.className = "status-msg err";
+        return;
+      }
+      chunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        recordedBlob = new Blob(chunks, { type: "audio/webm" });
+        const playback = document.getElementById("playback");
+        playback.src = URL.createObjectURL(recordedBlob);
+        playback.style.display = "block";
+        document.getElementById("send-btn").disabled = false;
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      mediaRecorder.start();
+      btn.textContent = "Stop Recording";
+      statusEl.textContent = "Recording...";
+      statusEl.className = "status-msg";
+    } else {
+      mediaRecorder.stop();
+      btn.textContent = "Record Again";
+      statusEl.textContent = "Recording saved below — listen back before sending.";
+      statusEl.className = "status-msg ok";
+    }
+  }
+
+  function handleSend() {
+    if (!recordedBlob) return;
+    const filename = `phone-call-practice-${Date.now()}.webm`;
+    const file = new File([recordedBlob], filename, { type: "audio/webm" });
+    sendFileToParent("Phone Call Practice", file);
+  }
+</script>
+</body>
+</html>

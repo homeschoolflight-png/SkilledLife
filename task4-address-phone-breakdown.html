@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task 4: Address & Phone Breakdown — Life Skills Practice</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="back-link" href="index.html">&larr; Personal Info &amp; Forms</a>
+  <p class="section-badge">Task 4</p>
+  <h1>Address &amp; Phone Breakdown</h1>
+</header>
+<main>
+
+  <div class="task-card">
+    <h3 style="margin-top:0;">Part A — Practice with a made-up person</h3>
+    <p style="color: var(--text-dim);">Drag each piece into its box.</p>
+    <div id="bio-box" class="bio-box"></div>
+    <div id="chip-pool-a" class="chip-pool"></div>
+
+    <form id="form-a" onsubmit="return false;">
+      <p style="color: var(--text-dim); margin-bottom: 6px;">Address</p>
+      <div class="two-col">
+        <div class="field-row drop-target" data-accepts="a-house"><label>House Number</label><input type="text" readonly /></div>
+        <div class="field-row drop-target" data-accepts="a-street"><label>Street</label><input type="text" readonly /></div>
+      </div>
+      <div class="two-col">
+        <div class="field-row drop-target" data-accepts="a-city"><label>City</label><input type="text" readonly /></div>
+        <div class="field-row drop-target" data-accepts="a-state"><label>State</label><input type="text" readonly /></div>
+      </div>
+      <div class="field-row drop-target" data-accepts="a-zip"><label>Zip Code</label><input type="text" readonly /></div>
+
+      <p style="color: var(--text-dim); margin: 18px 0 6px;">Phone Number</p>
+      <div class="two-col">
+        <div class="field-row drop-target" data-accepts="a-area"><label>Area Code</label><input type="text" readonly /></div>
+        <div class="field-row drop-target" data-accepts="a-rest"><label>Rest of Number</label><input type="text" readonly /></div>
+      </div>
+    </form>
+  </div>
+
+  <div class="task-card">
+    <h3 style="margin-top:0;">Part B — Your own information</h3>
+    <p style="color: var(--text-dim);">Now fill in your own real address and phone number, broken into the same pieces.</p>
+
+    <form id="form-b" onsubmit="return false;">
+      <p style="color: var(--text-dim); margin-bottom: 6px;">Address</p>
+      <div class="two-col">
+        <div class="field-row"><label>House Number</label><input type="text" id="b-house" /></div>
+        <div class="field-row"><label>Street</label><input type="text" id="b-street" /></div>
+      </div>
+      <div class="two-col">
+        <div class="field-row"><label>City</label><input type="text" id="b-city" /></div>
+        <div class="field-row"><label>State</label><input type="text" id="b-state" /></div>
+      </div>
+      <div class="field-row"><label>Zip Code</label><input type="text" id="b-zip" /></div>
+
+      <p style="color: var(--text-dim); margin: 18px 0 6px;">Phone Number</p>
+      <div class="two-col">
+        <div class="field-row"><label>Area Code</label><input type="text" id="b-area" /></div>
+        <div class="field-row"><label>Rest of Number</label><input type="text" id="b-rest" /></div>
+      </div>
+    </form>
+  </div>
+
+  <div class="task-card">
+    <div id="feedback-root"></div>
+    <div class="actions-row">
+      <button id="send-btn" class="primary-btn" disabled onclick="handleSendA()">Send Part A</button>
+      <button class="primary-btn" onclick="handleSendB()">Send Part B</button>
+      <span class="send-reminder">Don't forget to send both!</span>
+    </div>
+    <div id="send-status" class="status-msg"></div>
+  </div>
+</main>
+
+<script src="../personas.js"></script>
+<script src="../app.js"></script>
+<script>
+  const persona = pickPersona();
+  document.getElementById("bio-box").textContent = addressPhoneBio(persona);
+
+  const chips = [
+    { key: "a-house", value: persona.houseNumber },
+    { key: "a-street", value: persona.street },
+    { key: "a-city", value: persona.city },
+    { key: "a-state", value: persona.state },
+    { key: "a-zip", value: persona.zip },
+    { key: "a-area", value: persona.areaCode },
+    { key: "a-rest", value: `${persona.prefix}-${persona.line}` }
+  ];
+  chips.sort(() => Math.random() - 0.5);
+
+  const pool = document.getElementById("chip-pool-a");
+  chips.forEach((c) => {
+    const el = document.createElement("span");
+    el.className = "chip";
+    el.dataset.key = c.key;
+    el.dataset.value = c.value;
+    el.textContent = c.value;
+    pool.appendChild(el);
+  });
+
+  wireDragAndDrop();
+
+  function handleSendA() {
+    const data = {};
+    document.querySelectorAll("#form-a .drop-target").forEach((t) => {
+      data[t.dataset.accepts] = t.querySelector("input").value;
+    });
+    sendToParent("Address Phone Breakdown - Part A", data);
+  }
+
+  function handleSendB() {
+    const ids = ["b-house","b-street","b-city","b-state","b-zip","b-area","b-rest"];
+    const data = {};
+    ids.forEach((id) => { data[id] = document.getElementById(id).value; });
+    sendToParent("Address Phone Breakdown - Part B", data);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task 3: Read the Details — Life Skills Practice</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="back-link" href="index.html">&larr; Communication</a>
+  <p class="section-badge">Task 3</p>
+  <h1>Read the Details</h1>
+</header>
+<main>
+  <div class="task-card">
+    <p style="color: var(--text-dim);">Read the confirmation below carefully, then answer the questions. You get up to 3 tries to check your answers.</p>
+    <div id="confirmation-box" class="bio-box" style="white-space: pre-line;"></div>
+
+    <form id="answer-form" onsubmit="return false;">
+      <div id="questions-root"></div>
+    </form>
+
+    <div class="actions-row">
+      <button id="check-btn" class="primary-btn" onclick="checkAnswers()">Check My Answers</button>
+      <span id="attempts-left" class="send-reminder"></span>
+    </div>
+    <div id="results-summary" class="status-msg"></div>
+
+    <div id="feedback-root"></div>
+    <div id="send-status" class="status-msg"></div>
+  </div>
+</main>
+
+<script src="../app.js"></script>
+<script>
+  const SCENARIOS = [
+    {
+      title: "Flight Confirmation",
+      text:
+`Confirmation #: FLT-88213
+Airline: Skyline Air
+Flight: 442
+From: Charlotte (CLT)
+To: Chicago (ORD)
+Date: Thursday, October 8
+Departure Time: 9:45 AM
+Gate: B12
+Seat: 14C
+Baggage: 1 checked bag included`,
+      questions: [
+        { key: "confNum", q: "What is the confirmation number?", answer: "FLT-88213" },
+        { key: "flightNum", q: "What is the flight number?", answer: "442" },
+        { key: "departTime", q: "What time does the flight leave?", answer: "9:45 AM" },
+        { key: "gate", q: "What gate does it leave from?", answer: "B12" },
+        { key: "seat", q: "What seat number is assigned?", answer: "14C" }
+      ]
+    },
+    {
+      title: "Appointment Confirmation",
+      text:
+`Confirmation #: APT-55021
+Provider: Dr. Feldman, Family Medicine
+Date: Monday, November 3
+Time: 10:15 AM
+Location: 220 Maple Ridge Rd, Suite 4
+Please arrive 15 minutes early.
+Bring: insurance card and photo ID`,
+      questions: [
+        { key: "confNum", q: "What is the confirmation number?", answer: "APT-55021" },
+        { key: "provider", q: "Who is the appointment with?", answer: "Dr. Feldman" },
+        { key: "time", q: "What time is the appointment?", answer: "10:15 AM" },
+        { key: "arrive", q: "How many minutes early should you arrive?", answer: "15" },
+        { key: "bring", q: "What should you bring? (name one thing)", answer: ["insurance card", "photo id"] }
+      ]
+    },
+    {
+      title: "Party Invitation",
+      text:
+`You're Invited!
+What: Maya's 16th Birthday Party
+When: Saturday, September 20, 4:00 PM - 7:00 PM
+Where: Riverside Park, Pavilion 3
+RSVP by: September 13
+Bring: a swimsuit and a towel`,
+      questions: [
+        { key: "who", q: "Whose birthday is it?", answer: "Maya" },
+        { key: "date", q: "What day is the party?", answer: "September 20" },
+        { key: "startTime", q: "What time does it start?", answer: "4:00 PM" },
+        { key: "location", q: "Where is the party?", answer: "Riverside Park" },
+        { key: "rsvp", q: "By what date do you need to RSVP?", answer: "September 13" }
+      ]
+    },
+    {
+      title: "Work Schedule Change",
+      text:
+`Schedule Update
+Employee: You
+Change: Your Wednesday shift has moved
+Old Shift: Wednesday, 9:00 AM - 1:00 PM
+New Shift: Wednesday, 12:00 PM - 4:00 PM
+Effective: Starting next week
+Questions? Contact your supervisor, Mr. Daniels, at extension 204`,
+      questions: [
+        { key: "oldStart", q: "What time did the shift used to start?", answer: "9:00 AM" },
+        { key: "newStart", q: "What time does the new shift start?", answer: "12:00 PM" },
+        { key: "newEnd", q: "What time does the new shift end?", answer: "4:00 PM" },
+        { key: "supervisor", q: "Who is the supervisor to contact with questions?", answer: "Mr. Daniels" },
+        { key: "extension", q: "What extension number should you call?", answer: "204" }
+      ]
+    }
+  ];
+
+  const scenario = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+  const MAX_ATTEMPTS = 3;
+  let attemptsUsed = 0;
+  let alreadySent = false;
+
+  document.getElementById("confirmation-box").innerHTML =
+    `<strong>${scenario.title}</strong>\n\n${scenario.text}`;
+
+  const qRoot = document.getElementById("questions-root");
+  scenario.questions.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "field-row";
+    row.innerHTML = `<label>${item.q}</label><input type="text" id="q-${item.key}" autocomplete="off" />`;
+    qRoot.appendChild(row);
+  });
+
+  updateAttemptsDisplay();
+
+  function updateAttemptsDisplay() {
+    const remaining = MAX_ATTEMPTS - attemptsUsed;
+    document.getElementById("attempts-left").textContent =
+      remaining > 0 ? `Attempts left: ${remaining}` : "No attempts left.";
+  }
+
+  function isCorrect(item, given) {
+    const normalized = given.trim().toLowerCase();
+    const answers = Array.isArray(item.answer) ? item.answer : [item.answer];
+    return answers.some((a) => normalized === a.toLowerCase() || normalized.includes(a.toLowerCase()));
+  }
+
+  function checkAnswers() {
+    if (alreadySent || attemptsUsed >= MAX_ATTEMPTS) return;
+    attemptsUsed++;
+
+    let correctCount = 0;
+    const results = {};
+    scenario.questions.forEach((item) => {
+      const input = document.getElementById(`q-${item.key}`);
+      const given = input.value;
+      const correct = isCorrect(item, given);
+      if (correct) correctCount++;
+      results[item.key] = { question: item.q, given, correct };
+      input.style.borderColor = correct ? "var(--good)" : "var(--bad)";
+    });
+
+    const allCorrect = correctCount === scenario.questions.length;
+    document.getElementById("results-summary").textContent =
+      `${correctCount} of ${scenario.questions.length} correct (attempt ${attemptsUsed} of ${MAX_ATTEMPTS}).`;
+    document.getElementById("results-summary").className = allCorrect ? "status-msg ok" : "status-msg";
+
+    updateAttemptsDisplay();
+
+    if (allCorrect || attemptsUsed >= MAX_ATTEMPTS) {
+      document.getElementById("check-btn").disabled = true;
+      autoSend(results, correctCount, allCorrect);
+    }
+  }
+
+  function autoSend(results, correctCount, allCorrect) {
+    if (alreadySent) return;
+    alreadySent = true;
+    const data = {
+      scenario: scenario.title,
+      attemptsUsed: attemptsUsed,
+      maxAttempts: MAX_ATTEMPTS,
+      correctCount: correctCount,
+      totalQuestions: scenario.questions.length,
+      finishedEarlyWithPerfectScore: allCorrect && attemptsUsed < MAX_ATTEMPTS,
+      answers: results
+    };
+    sendToParent("Read the Details", data);
+  }
+</script>
+</body>
+</html>
