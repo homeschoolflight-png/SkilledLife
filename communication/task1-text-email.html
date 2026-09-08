@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task 1: Write a Text or Email — Life Skills Practice</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="back-link" href="index.html">&larr; Communication</a>
+  <p class="section-badge">Task 1</p>
+  <h1>Write a Text or Email</h1>
+</header>
+<main>
+  <div class="task-card">
+    <p style="color: var(--text-dim);">Here's your situation:</p>
+    <div id="scenario-box" class="bio-box"></div>
+
+    <div class="field-row">
+      <label id="message-label">Your message</label>
+      <textarea id="message-body" rows="6" placeholder="Type your message here..."></textarea>
+    </div>
+
+    <div class="field-row" style="margin-top: 18px;">
+      <label>Take a look before you send:</label>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="chk-1" /><label for="chk-1">Is it addressed to the right person?</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="chk-2" /><label for="chk-2">Did you say who you are?</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="chk-3" /><label for="chk-3">Did you say why you're reaching out?</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="chk-4" /><label for="chk-4">Is it polite, and did you say thank you?</label></div>
+
+    <div id="feedback-root"></div>
+
+    <div class="actions-row">
+      <button class="primary-btn" onclick="handleSend()">Send to Parent</button>
+      <span class="send-reminder">Don't forget to send this!</span>
+    </div>
+    <div id="send-status" class="status-msg"></div>
+  </div>
+</main>
+
+<script src="../app.js"></script>
+<script>
+  const SCENARIOS = [
+    {
+      type: "Text",
+      recipient: "the front desk at your doctor's office",
+      prompt: "You have an appointment tomorrow at 2:00pm, but you need to reschedule it. Text the front desk to ask about moving it."
+    },
+    {
+      type: "Email",
+      recipient: "your doctor's office",
+      prompt: "You have a question about a medication you were prescribed. Email the office to ask about it before your next visit."
+    },
+    {
+      type: "Email",
+      recipient: "your instructor at the work training center",
+      prompt: "You didn't understand part of yesterday's lesson. Email your instructor to ask them to explain it again."
+    },
+    {
+      type: "Text",
+      recipient: "the work training center",
+      prompt: "You woke up sick and won't be able to come in today. Text to let them know."
+    },
+    {
+      type: "Text",
+      recipient: "the work training center",
+      prompt: "You're stuck in traffic and will be about 15 minutes late. Text to let them know."
+    },
+    {
+      type: "Email",
+      recipient: "the work training center office",
+      prompt: "You'll need to miss the whole day next Friday for a family event. Email ahead of time to let them know."
+    },
+    {
+      type: "Text",
+      recipient: "your Equine Therapy instructor",
+      prompt: "You have a schedule conflict next week and need to miss your Equine Therapy session. Text to let them know ahead of time."
+    },
+    {
+      type: "Email",
+      recipient: "your Equine Therapy program",
+      prompt: "You want to ask whether you can bring a friend to watch your next session. Email to ask."
+    },
+    {
+      type: "Text",
+      recipient: "your Physical Therapist's office",
+      prompt: "You're running about 10 minutes late to your PT appointment. Text to give them a heads up."
+    },
+    {
+      type: "Email",
+      recipient: "your Physical Therapist's office",
+      prompt: "You need to reschedule your PT appointment next week. Email the office to ask about other available times."
+    }
+  ];
+
+  const scenario = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+  document.getElementById("scenario-box").innerHTML =
+    `<strong>${scenario.type} to:</strong> ${scenario.recipient}<br><br>${scenario.prompt}`;
+  document.getElementById("message-label").textContent = `Your ${scenario.type.toLowerCase()}`;
+
+  function handleSend() {
+    const data = {
+      scenarioType: scenario.type,
+      recipient: scenario.recipient,
+      prompt: scenario.prompt,
+      message: document.getElementById("message-body").value,
+      selfCheck: {
+        addressedToRightPerson: document.getElementById("chk-1").checked,
+        saidWhoTheyAre: document.getElementById("chk-2").checked,
+        saidWhyReachingOut: document.getElementById("chk-3").checked,
+        politeAndThankYou: document.getElementById("chk-4").checked
+      }
+    };
+    sendToParent("Write a Text or Email", data);
+  }
+</script>
+</body>
+</html>

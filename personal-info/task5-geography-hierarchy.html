@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task 5: Where Do You Live? — Life Skills Practice</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="back-link" href="index.html">&larr; Personal Info &amp; Forms</a>
+  <p class="section-badge">Task 5</p>
+  <h1>Where Do You Live?</h1>
+</header>
+<main>
+
+  <div class="task-card">
+    <h3 style="margin-top:0;">A Real Example</h3>
+    <p style="color: var(--text-dim);">Every place fits inside a bigger place, like nesting boxes. Here's a real example, from biggest to smallest:</p>
+    <div class="hierarchy-nest">
+      <div class="nest-level l-continent">
+        <span class="nest-label">Continent</span>
+        <span class="nest-value">North America</span>
+      </div>
+      <div class="nest-level l-country">
+        <span class="nest-label">Country</span>
+        <span class="nest-value">United States</span>
+      </div>
+      <div class="nest-level l-region">
+        <span class="nest-label">Region</span>
+        <span class="nest-value">Southeast</span>
+      </div>
+      <div class="nest-level l-state">
+        <span class="nest-label">State</span>
+        <span class="nest-value">North Carolina</span>
+      </div>
+      <div class="nest-level l-county">
+        <span class="nest-label">County</span>
+        <span class="nest-value">Henderson County</span>
+      </div>
+      <div class="nest-level l-city">
+        <span class="nest-label">City</span>
+        <span class="nest-value">Flat Rock</span>
+      </div>
+      <div class="nest-level l-street">
+        <span class="nest-label">Place</span>
+        <span class="nest-value">Bonclarken <span class="aside">("Joni Land")</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3 style="margin-top:0;">The Regions of the U.S.</h3>
+    <p style="color: var(--text-dim);">Every state belongs to one of these five regions:</p>
+    <div class="regions-key">
+      <div class="region-item"><strong>Northeast</strong><span>e.g. New York, Maine</span></div>
+      <div class="region-item"><strong>Southeast</strong><span>e.g. North Carolina, Florida</span></div>
+      <div class="region-item"><strong>Midwest</strong><span>e.g. Ohio, Wisconsin</span></div>
+      <div class="region-item"><strong>Southwest</strong><span>e.g. Texas, Arizona</span></div>
+      <div class="region-item"><strong>West</strong><span>e.g. California, Oregon</span></div>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3 style="margin-top:0;">Part A — Practice with a made-up person</h3>
+    <p style="color: var(--text-dim);">Drag each fact into the correct box, from biggest to smallest.</p>
+    <div id="bio-box" class="bio-box"></div>
+    <div id="chip-pool-a" class="chip-pool"></div>
+
+    <form id="form-a" onsubmit="return false;" class="hierarchy-list">
+      <div class="field-row drop-target" data-accepts="a-country"><label>Country</label><input type="text" readonly /></div>
+      <div class="field-row drop-target" data-accepts="a-region"><label>Region</label><input type="text" readonly /></div>
+      <div class="field-row drop-target" data-accepts="a-state"><label>State</label><input type="text" readonly /></div>
+      <div class="field-row drop-target" data-accepts="a-county"><label>County</label><input type="text" readonly /></div>
+      <div class="field-row drop-target" data-accepts="a-city"><label>City</label><input type="text" readonly /></div>
+      <div class="field-row drop-target" data-accepts="a-street"><label>Street</label><input type="text" readonly /></div>
+    </form>
+  </div>
+
+  <div class="task-card">
+    <h3 style="margin-top:0;">Part B — Your own information</h3>
+    <p style="color: var(--text-dim);">Now fill in your own real information, from biggest to smallest.</p>
+    <form id="form-b" onsubmit="return false;" class="hierarchy-list">
+      <div class="field-row"><label>Country</label><input type="text" id="b-country" /></div>
+      <div class="field-row"><label>Region</label><input type="text" id="b-region" /></div>
+      <div class="field-row"><label>State</label><input type="text" id="b-state" /></div>
+      <div class="field-row"><label>County</label><input type="text" id="b-county" /></div>
+      <div class="field-row"><label>City</label><input type="text" id="b-city" /></div>
+      <div class="field-row"><label>Street</label><input type="text" id="b-street" /></div>
+    </form>
+  </div>
+
+  <div class="task-card">
+    <div id="feedback-root"></div>
+    <div class="actions-row">
+      <button id="send-btn" class="primary-btn" disabled onclick="handleSendA()">Send Part A</button>
+      <button class="primary-btn" onclick="handleSendB()">Send Part B</button>
+      <span class="send-reminder">Don't forget to send both!</span>
+    </div>
+    <div id="send-status" class="status-msg"></div>
+    <p class="external-link-note">Want to explore more? Check out the
+      <a href="https://kids.britannica.com/kids/browse/atlas" target="_blank" rel="noopener">Britannica Kids Atlas</a>.
+    </p>
+  </div>
+</main>
+
+<script src="../personas.js"></script>
+<script src="../app.js"></script>
+<script>
+  const persona = pickPersona();
+  document.getElementById("bio-box").textContent =
+    `${persona.name} lives in ${persona.city}, ${persona.county}, ${persona.state}, ` +
+    `which is in the ${persona.region} region of the United States.`;
+
+  const chips = [
+    { key: "a-country", value: "United States" },
+    { key: "a-region", value: persona.region },
+    { key: "a-state", value: persona.state },
+    { key: "a-county", value: persona.county },
+    { key: "a-city", value: persona.city },
+    { key: "a-street", value: persona.street }
+  ];
+  chips.sort(() => Math.random() - 0.5);
+
+  const pool = document.getElementById("chip-pool-a");
+  chips.forEach((c) => {
+    const el = document.createElement("span");
+    el.className = "chip";
+    el.dataset.key = c.key;
+    el.dataset.value = c.value;
+    el.textContent = c.value;
+    pool.appendChild(el);
+  });
+
+  wireDragAndDrop();
+
+  function handleSendA() {
+    const data = {};
+    document.querySelectorAll("#form-a .drop-target").forEach((t) => {
+      data[t.dataset.accepts] = t.querySelector("input").value;
+    });
+    sendToParent("Where Do You Live - Part A", data);
+  }
+
+  function handleSendB() {
+    const ids = ["b-country","b-region","b-state","b-county","b-city","b-street"];
+    const data = {};
+    ids.forEach((id) => { data[id] = document.getElementById(id).value; });
+    sendToParent("Where Do You Live - Part B", data);
+  }
+</script>
+</body>
+</html>

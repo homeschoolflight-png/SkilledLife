@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Task 2: New Patient Form — Life Skills Practice</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="back-link" href="index.html">&larr; Personal Info &amp; Forms</a>
+  <p class="section-badge">Task 2</p>
+  <h1>New Patient Form</h1>
+</header>
+<main>
+  <div class="task-card">
+    <p style="color: var(--text-dim);">Read about the patient below. Drag each fact into the correct box on the form.</p>
+    <div id="bio-box" class="bio-box"></div>
+
+    <div id="chip-pool" class="chip-pool"></div>
+
+    <form id="intake-form" onsubmit="return false;">
+      <div class="two-col">
+        <div class="field-row drop-target" data-accepts="name"><label>Full Name</label><input type="text" readonly /></div>
+        <div class="field-row drop-target" data-accepts="dob"><label>Date of Birth</label><input type="text" readonly /></div>
+      </div>
+      <div class="field-row drop-target" data-accepts="address"><label>Address</label><input type="text" readonly /></div>
+      <div class="two-col">
+        <div class="field-row drop-target" data-accepts="phone"><label>Phone</label><input type="text" readonly /></div>
+        <div class="field-row drop-target" data-accepts="email"><label>Email</label><input type="text" readonly /></div>
+      </div>
+      <div class="two-col">
+        <div class="field-row drop-target" data-accepts="gender"><label>Gender</label><input type="text" readonly /></div>
+        <div class="field-row drop-target" data-accepts="pob"><label>Place of Birth</label><input type="text" readonly /></div>
+      </div>
+      <fieldset>
+        <legend>Emergency Contact</legend>
+        <div class="field-row drop-target" data-accepts="ecName"><label>Name</label><input type="text" readonly /></div>
+        <div class="two-col">
+          <div class="field-row drop-target" data-accepts="ecRelationship"><label>Relationship</label><input type="text" readonly /></div>
+          <div class="field-row drop-target" data-accepts="ecPhone"><label>Phone</label><input type="text" readonly /></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Insurance</legend>
+        <div class="two-col">
+          <div class="field-row drop-target" data-accepts="insuranceProvider"><label>Provider</label><input type="text" readonly /></div>
+          <div class="field-row drop-target" data-accepts="insurancePolicy"><label>Policy Number</label><input type="text" readonly /></div>
+        </div>
+      </fieldset>
+      <div class="field-row drop-target" data-accepts="reason"><label>Reason for Visit</label><input type="text" readonly /></div>
+      <div class="field-row drop-target" data-accepts="allergies"><label>Allergies / Medications</label><input type="text" readonly /></div>
+    </form>
+
+    <div id="feedback-root"></div>
+
+    <div class="actions-row">
+      <button id="send-btn" class="primary-btn" disabled onclick="handleSend()">Send to Parent</button>
+      <span class="send-reminder">Don't forget to send this!</span>
+    </div>
+    <div id="send-status" class="status-msg"></div>
+  </div>
+</main>
+
+<script src="../personas.js"></script>
+<script src="../app.js"></script>
+<script>
+  const persona = pickPersona();
+
+  document.getElementById("bio-box").textContent = medicalIntakeBio(persona);
+
+  const chips = [
+    { key: "name", value: persona.name },
+    { key: "dob", value: persona.dob },
+    { key: "address", value: `${persona.houseNumber} ${persona.street}, ${persona.city}, ${persona.state} ${persona.zip}` },
+    { key: "phone", value: formatPhone(persona.areaCode, persona.prefix, persona.line) },
+    { key: "email", value: persona.email },
+    { key: "gender", value: persona.gender },
+    { key: "pob", value: persona.placeOfBirth },
+    { key: "ecName", value: persona.emergencyContactName },
+    { key: "ecRelationship", value: persona.emergencyContactRelationship },
+    { key: "ecPhone", value: persona.emergencyContactPhone },
+    { key: "insuranceProvider", value: persona.insuranceProvider },
+    { key: "insurancePolicy", value: persona.insurancePolicy },
+    { key: "reason", value: persona.reasonForVisit },
+    { key: "allergies", value: persona.allergies }
+  ];
+
+  chips.sort(() => Math.random() - 0.5);
+
+  const pool = document.getElementById("chip-pool");
+  chips.forEach((c) => {
+    const el = document.createElement("span");
+    el.className = "chip";
+    el.dataset.key = c.key;
+    el.dataset.value = c.value;
+    el.textContent = c.value;
+    pool.appendChild(el);
+  });
+
+  wireDragAndDrop();
+
+  function handleSend() {
+    const data = {};
+    document.querySelectorAll(".drop-target").forEach((t) => {
+      data[t.dataset.accepts] = t.querySelector("input").value;
+    });
+    sendToParent("New Patient Form", data);
+  }
+</script>
+</body>
+</html>
